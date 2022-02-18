@@ -1,0 +1,7 @@
+Block([INS(STORE(D(Int(2147483646,IntType(4,false))),%y)),
+INS(LOAD(%2,4,%x.addr)),
+INS(LOAD(%3,4,%y)),
+INS(ADD(%add,4,%2,%3)),
+INS(STORE(%add,%z)),
+INS(LOAD(%4,4,%z)),
+INS(ICMP(%cmp2,sgt,4,%4,D(Int(0,IntType(4,false)))))]
