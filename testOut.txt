@@ -1,7 +1,18 @@
-Block([INS(STORE(D(Int(2147483646,IntType(4,false))),%y)),
-INS(LOAD(%2,4,%x.addr)),
-INS(LOAD(%3,4,%y)),
-INS(ADD(%add,4,%2,%3)),
-INS(STORE(%add,%z)),
-INS(LOAD(%4,4,%z)),
-INS(ICMP(%cmp2,sgt,4,%4,D(Int(0,IntType(4,false)))))]
+var entry = Block([INS(ALLOCA(%z)),
+INS(ICMP(%cmp,slt,4,%x,D(Int(0,IntType(4,false))))),
+INS(BR(%cmp,%if.then,%lor.lhs.false))];
+
+var lor.lhs.false = Block([INS(ICMP(%cmp1,sgt,4,%x,D(Int(2,IntType(4,false))))),
+INS(BR(%cmp1,%if.then,%if.end))];
+
+var if.then = Block([INS(BR(br))];
+
+var if.end = Block([INS(ADD(%add,4,%x,D(Int(2147483646,IntType(4,false))))),
+INS(STORE(D(Int(i32,IntType(-1,false))),D(Int(i32*,IntType(-1,false))))),
+INS(LOAD(%0,-1,D(Int(i32*,IntType(-1,false))))),
+INS(ICMP(%cmp2,ugt,4,%0,D(Int(0,IntType(4,false))))),
+INS(BR(%cmp2,%if.then3,%if.end4))];
+
+var if.then3 = Block([INS(ICMP(%cmp2,ugt,4,%0,D(Int(0,IntType(4,false))))),
+INS(BR(br))];
+
