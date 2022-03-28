@@ -10,6 +10,8 @@ def findSize(s):
 		return 1
 	if(s == 'i16'):
 		return 2
+	if(s == 'i24'):
+		return 3
 	if(s == 'i32'):
 		return 4
 	if(s == 'i64'):
@@ -35,9 +37,12 @@ def handleArg(arg,size):
 def parseLLVM(in_filename,out_filename):
 	fo = open(in_filename,"r+")
 	fout = open(out_filename,"w+")
+	
 	llvmCode = fo.readlines()
 	count = 0
 	insList = []
+	lv = {}
+	totalDafyCode = ""
 	for line in llvmCode:
 		print("Line{}: {}".format(count,line.strip()))
 		count = count + 1
@@ -48,7 +53,8 @@ def parseLLVM(in_filename,out_filename):
 			if(args[0][-1] == ':'): #this is a block name
 				parsedList = []
 				insList = []
-				fout.write("var " + args[0][0:-1] + " = ")
+				totalDafyCode = totalDafyCode + "var " + args[0][0:-1] + " := "
+				# fout.write("var " + args[0][0:-1] + " := ")
 				continue
 			
 			if(args[0][0] == '%'):
@@ -104,6 +110,15 @@ def parseLLVM(in_filename,out_filename):
 					arg1 = handleArg(arg1,size)
 					parsedList.append(arg1)
 					parsedList.append(str(findSize(args[6])))
+				
+				if(ins == 'lshr'):
+					size = findSize(args[3])
+					arg1 = args[4].replace(',',"")
+					arg1 = handleArg(arg1,size)
+					arg2 = args[5].replace(',',"")
+					arg2 = handleArg(arg2,size)
+					parsedList.append(arg1)
+					parsedList.append(arg2)
 			
 				if(ins == 'load'):
 					size = findSize(args[3])
@@ -144,27 +159,56 @@ def parseLLVM(in_filename,out_filename):
 				
 		
 			if(len(parsedList) > 0):
-				insList.append(formatIns(parsedList))
+				formattedIns = formatIns(parsedList)
+				insList.append(insToDafny(formattedIns))
+				lv = handleLV(formattedIns,lv)
 			
 		# print (insList)
 		else:
-			fout.write(createLLVMBlock(insList))
+			totalDafyCode = totalDafyCode + createLLVMBlock(insList)
+			# fout.write(createLLVMBlock(insList))
+	
+	# add LVS
+	for lvs in lv:
+		fout.write("\n" + lv[lvs])
 	# Close opend file
+	fout.write("\n\n" + totalDafyCode)
 	fo.close()
 	fout.close()
 	
+	
+	
 
+def handleLV(ins,lvs):
+	for i in ins:
+		if("var_" in str(i) and not(i in lvs)):
+			lvs[str(i)] = "var " + str(i) + " := LV(\" " + str(i) + " \");"
+	return lvs
+	
+	
 def createLLVMBlock(listOfIns):
 	block = "Block(["
 	for ins in listOfIns[:len(listOfIns)-1]:
+		# print(ins)
+		# stripedIns = ins.replace('%',"var_")
+# 		stripedIns = stripedIns.replace(".","_")
 		block = block + str(ins) + ",\n"
-	block = block + listOfIns[len(listOfIns)-1] + "];\n\n"
+	block = block + listOfIns[len(listOfIns)-1].replace('%',"").replace('.',"_") + "]);\n\n"
 	return block
-	
+
 def formatIns(ins):
-	insStart = "INS("
+		formattedIns = []
+		for i in ins:
+			iFormat = i.replace('%',"var_").replace(".","_")
+			formattedIns.append(iFormat)
+		return formattedIns
+		
+def insToDafny(ins):
+	insStart = "Ins("
 	insStart = insStart+ins[0].upper()+"("
 	for item in ins[1:len(ins)-1]:
+		# itemStripped = item.replace('%',"var_")
+# 		itemStripped = itemStripped.replace(".","_")
 		insStart = insStart + item + ","
 	insStart = insStart + ins[len(ins)-1] + "))"
 	return insStart

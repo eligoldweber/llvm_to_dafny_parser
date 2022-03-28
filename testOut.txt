@@ -1,5 +1,14 @@
-var if.else = Block([INS(STORE(%read_frame.sroa.10.8.extract.trunc,D(Int(@num_packets,IntType(1,false))))),
-INS(AND(%conv20,%read_frame.sroa.0.0.extract.trunc,D(Int(255,IntType(4,false))))),
-INS(ZEXT(%conv21,%1,4)),
-INS(TRUNC(%2,%read_frame.sroa.10.8.extract.shift,4))];
+
+var var_y := LV(" var_y ");
+var var_add := LV(" var_add ");
+var var_2 := LV(" var_2 ");
+var var_3 := LV(" var_3 ");
+var var_z := LV(" var_z ");
+var var_cmp2 := LV(" var_cmp2 ");
+var var_4 := LV(" var_4 ");
+
+var entry := Block([Ins(STORE(D(Int(2147483646,IntType(4,false))),var_y)),
+Ins(ADD(var_add,4,var_2,var_3)),
+Ins(STORE(var_add,var_z)),
+Ins(ICMP(var_cmp2,sgt,4,var_4,D(Int(0,IntType(4,false)))))]);
 
