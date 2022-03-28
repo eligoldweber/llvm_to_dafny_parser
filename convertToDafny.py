@@ -58,7 +58,7 @@ def parseLLVM(in_filename,out_filename):
 				parsedList.append(ins)
 				parsedList.append(dst)
 			
-				if(ins == 'add'):
+				if(ins == 'add' or ins == 'sub'):
 					size = findSize(args[4])
 					parsedList.append(str(size))
 					arg1 = args[5].replace(',',"")
@@ -81,9 +81,31 @@ def parseLLVM(in_filename,out_filename):
 					parsedList.append(str(size))
 					parsedList.append(arg1)
 					parsedList.append(arg2)
+					
+				if(ins == 'and'):
+					size = findSize(args[3])
+					arg1 = args[4].replace(',',"")
+					arg1 = handleArg(arg1,size)
+					arg2 = args[5].replace(',',"")
+					arg2 = handleArg(arg2,size)
+					parsedList.append(arg1)
+					parsedList.append(arg2)
+				
+				if(ins == 'zext' or ins == 'sext'):
+					size = findSize(args[3])
+					arg1 = args[4].replace(',',"")
+					arg1 = handleArg(arg1,size)
+					parsedList.append(arg1)
+					parsedList.append(str(findSize(args[6])))
+				
+				if(ins == 'trunc'):
+					size = findSize(args[3])
+					arg1 = args[4].replace(',',"")
+					arg1 = handleArg(arg1,size)
+					parsedList.append(arg1)
+					parsedList.append(str(findSize(args[6])))
 			
 				if(ins == 'load'):
-					# print(args)
 					size = findSize(args[3])
 					src = args[5].replace(',',"")
 					src = handleArg(src,size)
@@ -99,6 +121,8 @@ def parseLLVM(in_filename,out_filename):
 				parsedList.append(arg1)
 				arg2 = handleArg(args[4],arg1Size)
 				parsedList.append(arg2)
+				
+				
 			
 			if(args[0] == "br"):
 				# print(args)
