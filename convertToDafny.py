@@ -26,10 +26,7 @@ def handleArg(arg,size):
 	if(arg[0] == '%'):
 		return arg
 	else:
-		# print(int(arg))
-		# arg = arg.replace(',',"")
 		convertedArg = "D(Int("+arg+",IntType("+str(size)+",false)))"
-		# print(convertedArg)
 		return convertedArg
 		
 		
@@ -63,6 +60,8 @@ def parseLLVM(in_filename,out_filename):
 				# writeToOut(ins)
 				parsedList.append(ins)
 				parsedList.append(dst)
+				
+				parsedList = handleIns(parsedList,args)
 			
 				if(ins == 'add' or ins == 'sub'):
 					size = findSize(args[4])
@@ -126,7 +125,7 @@ def parseLLVM(in_filename,out_filename):
 					src = handleArg(src,size)
 					parsedList.append(str(size))
 					parsedList.append(src)
-			
+	
 			
 				
 			if(args[0] == 'store'):
@@ -140,7 +139,6 @@ def parseLLVM(in_filename,out_filename):
 				
 			
 			if(args[0] == "br"):
-				# print(args)
 				parsedList.append(args[0])
 				arg1 = args[2].replace(',',"")
 				if(len(args) > 3):
@@ -151,8 +149,6 @@ def parseLLVM(in_filename,out_filename):
 					parsedList.append(argF)
 				
 			if(args[0] == 'ret'):
-				# arg1Size = findSize(args[1])
-				# arg1 = handleArg(args[1],arg1Size)
 				parsedList.append(args[0])
 				parsedList.append(args[1])
 		
@@ -177,8 +173,6 @@ def parseLLVM(in_filename,out_filename):
 	fout.close()
 	
 	
-	
-
 def handleLV(ins,lvs):
 	for i in ins:
 		if("var_" in str(i) and not(i in lvs)):
@@ -189,9 +183,6 @@ def handleLV(ins,lvs):
 def createLLVMBlock(listOfIns):
 	block = "Block(["
 	for ins in listOfIns[:len(listOfIns)-1]:
-		# print(ins)
-		# stripedIns = ins.replace('%',"var_")
-# 		stripedIns = stripedIns.replace(".","_")
 		block = block + str(ins) + ",\n"
 	block = block + listOfIns[len(listOfIns)-1].replace('%',"").replace('.',"_") + "]);\n\n"
 	return block
@@ -221,18 +212,6 @@ def writeToOut(ins,f):
 	f.write(ins[len(ins)-1])
 	f.write("))\n")
 	
-# def cleanInputFile(in_filename):
-# 	fo = open(in_filename,"r+")
-# 	fout = open("teset.ll","w+")
-# 	llvmCode = fo.readlines()
-# 	for line in llvmCode:
-# 		print("Line: {}".format(line.strip()))
-# 		args = line.split();
-# 		for word in args:
-# 			print (word)
-#
-# 	fo.close()
-# 	fout.close()
 	
 def main(argv):
    inputfile = ''
