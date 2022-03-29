@@ -50,7 +50,7 @@ def parseLLVM(in_filename,out_filename):
 			if(args[0][-1] == ':'): #this is a block name
 				parsedList = []
 				insList = []
-				totalDafyCode = totalDafyCode + "var " + args[0][0:-1] + " := "
+				totalDafyCode = totalDafyCode + "var " + args[0][0:-1].replace('.',"_") + " := "
 				# fout.write("var " + args[0][0:-1] + " := ")
 				continue
 			
@@ -61,7 +61,7 @@ def parseLLVM(in_filename,out_filename):
 				parsedList.append(ins)
 				parsedList.append(dst)
 				
-				parsedList = handleIns(parsedList,args)
+				# parsedList = handleIns(parsedList,args)
 			
 				if(ins == 'add' or ins == 'sub'):
 					size = findSize(args[4])
@@ -107,6 +107,7 @@ def parseLLVM(in_filename,out_filename):
 					size = findSize(args[3])
 					arg1 = args[4].replace(',',"")
 					arg1 = handleArg(arg1,size)
+					parsedList.append(str(size))
 					parsedList.append(arg1)
 					parsedList.append(str(findSize(args[6])))
 				
@@ -125,6 +126,13 @@ def parseLLVM(in_filename,out_filename):
 					src = handleArg(src,size)
 					parsedList.append(str(size))
 					parsedList.append(src)
+					
+				if(ins == 'alloca'):
+					size = findSize(args[3])
+					arg1 = args[4].replace(',',"")
+					arg1 = handleArg(arg1,size)
+					parsedList.append(str(size))
+					# parsedList.append(arg1)
 	
 			
 				
