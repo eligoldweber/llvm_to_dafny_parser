@@ -39,6 +39,7 @@ def parseLLVM(in_filename,out_filename):
 	count = 0
 	insList = []
 	lv = {}
+	labelList = []
 	totalDafyCode = ""
 	for line in llvmCode:
 		print("Line{}: {}".format(count,line.strip()))
@@ -51,6 +52,7 @@ def parseLLVM(in_filename,out_filename):
 				parsedList = []
 				insList = []
 				totalDafyCode = totalDafyCode + "var " + args[0][0:-1].replace('.',"_") + " := "
+				labelList.append(args[0][0:-1].replace('.',"_"));
 				# fout.write("var " + args[0][0:-1] + " := ")
 				continue
 			
@@ -147,9 +149,12 @@ def parseLLVM(in_filename,out_filename):
 				
 			
 			if(args[0] == "br"):
-				parsedList.append(args[0])
-				arg1 = args[2].replace(',',"")
-				if(len(args) > 3):
+				if(len(args) <= 3):
+					parsedList.append("UNCONDBR")
+					arg1 = args[2].replace(',',"")
+					parsedList.append(arg1)
+				else:
+					parsedList.append(args[0])
 					argT = args[4].replace(',',"")
 					argF = args[6].replace(',',"")
 					parsedList.append(arg1)
@@ -158,7 +163,11 @@ def parseLLVM(in_filename,out_filename):
 				
 			if(args[0] == 'ret'):
 				parsedList.append(args[0])
-				parsedList.append(args[1])
+				# handle void keyword
+				if(args[1] == "void"):
+					parsedList.append("D(Void)")
+				else:
+					parsedList.append(args[1])
 		
 				
 		
@@ -175,8 +184,10 @@ def parseLLVM(in_filename,out_filename):
 	# add LVS
 	for lvs in lv:
 		fout.write("\n" + lv[lvs])
+	for i in reversed(totalDafyCode.split("\n\n")):
+		fout.write("\n\n" + i)
+	fout.write("\n\n"+labelList[0])
 	# Close opend file
-	fout.write("\n\n" + totalDafyCode)
 	fo.close()
 	fout.close()
 	
@@ -196,11 +207,18 @@ def createLLVMBlock(listOfIns):
 	return block
 
 def formatIns(ins):
-		formattedIns = []
-		for i in ins:
-			iFormat = i.replace('%',"var_").replace(".","_")
-			formattedIns.append(iFormat)
-		return formattedIns
+	# print(ins)
+	formattedIns = []
+	for i in range(len(ins)):
+		if((ins[0] == "UNCONDBR" or ins[0] == "br")):
+			if(len(ins) > 3 and i==1):
+				iFormat = ins[i].replace('%',"var_").replace(".","_")
+			else:
+				iFormat = ins[i].replace('%',"").replace(".","_")
+		else:
+			iFormat = ins[i].replace('%',"var_").replace(".","_")
+		formattedIns.append(iFormat)
+	return formattedIns
 		
 def insToDafny(ins):
 	insStart = "Ins("
