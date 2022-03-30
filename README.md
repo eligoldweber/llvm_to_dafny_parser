@@ -17,4 +17,5 @@ The output of this script is the body of a function in Dafny.
 
 NOTE: All `.ll` files must end in a newline
 
+NOTE: The formal semantics of LLVM in Dafny dont yet support `switch` or `phi`, so it is recommended to use the `-lowerswitch` and `reg2mem` LLVM passes.
 
