@@ -6,24 +6,24 @@ import sys, getopt
 
 def findSize(s):
 	s = s.replace(',',"")
-	if(s == 'i8'):
+	if('i8' in s):
 		return 1
-	if(s == 'i16'):
+	if('i16' in s):
 		return 2
-	if(s == 'i24'):
+	if('i24' in s):
 		return 3
-	if(s == 'i32'):
+	if('i32' in s):
 		return 4
-	if(s == 'i64'):
+	if('i64' in s):
 		return 8
 	else:
-		return -1
+		return 8
 		
 def handleArg(arg,size):
 	if (len(arg) <= 0):
 		return
 	arg = arg.replace(',',"")
-	if(arg[0] == '%'):
+	if(arg[0] == '%' or arg[0] == '@'):
 		return arg
 	else:
 		convertedArg = "D(Int("+arg+",IntType("+str(size)+",false)))"
@@ -40,7 +40,7 @@ def parseLLVM(in_filename,out_filename):
 	insList = []
 	lv = {}
 	labelList = []
-	totalDafyCode = ""
+	totalDafnyCode = ""
 	for line in llvmCode:
 		print("Line{}: {}".format(count,line.strip()))
 		count = count + 1
@@ -51,7 +51,7 @@ def parseLLVM(in_filename,out_filename):
 			if(args[0][-1] == ':'): #this is a block name
 				parsedList = []
 				insList = []
-				totalDafyCode = totalDafyCode + "var " + args[0][0:-1].replace('.',"_") + " := "
+				totalDafnyCode = totalDafnyCode + "var " + args[0][0:-1].replace('.',"_") + " := "
 				labelList.append(args[0][0:-1].replace('.',"_"));
 				# fout.write("var " + args[0][0:-1] + " := ")
 				continue
@@ -178,13 +178,13 @@ def parseLLVM(in_filename,out_filename):
 			
 		# print (insList)
 		else:
-			totalDafyCode = totalDafyCode + createLLVMBlock(insList)
+			totalDafnyCode = totalDafnyCode + createLLVMBlock(insList)
 			# fout.write(createLLVMBlock(insList))
 	
 	# add LVS
 	for lvs in lv:
 		fout.write("\n" + lv[lvs])
-	for i in reversed(totalDafyCode.split("\n\n")):
+	for i in reversed(totalDafnyCode.split("\n\n")):
 		fout.write("\n\n" + i)
 	fout.write("\n\n"+labelList[0])
 	# Close opend file
@@ -216,7 +216,7 @@ def formatIns(ins):
 			else:
 				iFormat = ins[i].replace('%',"").replace(".","_")
 		else:
-			iFormat = ins[i].replace('%',"var_").replace(".","_")
+			iFormat = ins[i].replace('%',"var_").replace('@',"var_").replace(".","_")
 		formattedIns.append(iFormat)
 	return formattedIns
 		
@@ -229,14 +229,6 @@ def insToDafny(ins):
 		insStart = insStart + item + ","
 	insStart = insStart + ins[len(ins)-1] + "))"
 	return insStart
-
-def writeToOut(ins,f):
-	insStart = "INS("
-	f.write(insStart+ins[0].upper()+"(")
-	for item in ins[1:len(ins)-1]:
-		f.write(item + ",")
-	f.write(ins[len(ins)-1])
-	f.write("))\n")
 	
 	
 def main(argv):
@@ -259,7 +251,13 @@ def main(argv):
    print('Output file is "', outputfile)
    # cleanInputFile(inputfile)
    parseLLVM(inputfile,outputfile)
+   
+   #sanitze keyword 'return'
+   with open(outputfile) as f:
+	   newText=f.read().replace('return', 'return_')
 
+   with open(outputfile, "w") as f:
+	   f.write(newText)
 
 if __name__ == "__main__":
    main(sys.argv[1:])
