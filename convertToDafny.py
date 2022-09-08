@@ -75,6 +75,15 @@ def parseLLVM(in_filename,out_filename):
 					arg2 = handleArg(arg2,size)
 					parsedList.append(arg1)
 					parsedList.append(arg2)
+
+				if(ins == 'sdiv'):
+					arg1 = args[4].replace(',',"")
+					arg2 = args[5].replace(',',"")
+				
+					arg1 = handleArg(arg1,size)
+					arg2 = handleArg(arg2,size)
+					parsedList.append(arg1)
+					parsedList.append(arg2)
 				
 				if(ins == 'icmp'):
 					comp = args[3]
