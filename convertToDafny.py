@@ -79,7 +79,7 @@ def parseLLVM(in_filename,out_filename):
 				if(ins == 'sdiv'):
 					arg1 = args[4].replace(',',"")
 					arg2 = args[5].replace(',',"")
-				
+					size = findSize(args[3])
 					arg1 = handleArg(arg1,size)
 					arg2 = handleArg(arg2,size)
 					parsedList.append(arg1)
@@ -111,6 +111,7 @@ def parseLLVM(in_filename,out_filename):
 					size = findSize(args[3])
 					arg1 = args[4].replace(',',"")
 					arg1 = handleArg(arg1,size)
+					parsedList.append(str(size))
 					parsedList.append(arg1)
 					parsedList.append(str(findSize(args[6])))
 				
@@ -166,6 +167,7 @@ def parseLLVM(in_filename,out_filename):
 					parsedList.append(args[0])
 					argT = args[4].replace(',',"")
 					argF = args[6].replace(',',"")
+					arg1 = args[2].replace(',',"")
 					parsedList.append(arg1)
 					parsedList.append(argT)
 					parsedList.append(argF)
@@ -176,7 +178,7 @@ def parseLLVM(in_filename,out_filename):
 				if(args[1] == "void"):
 					parsedList.append("D(Void)")
 				else:
-					parsedList.append(args[1])
+					parsedList.append(args[2])
 		
 				
 		
